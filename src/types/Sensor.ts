@@ -9,13 +9,14 @@ type Sensor = {
   fontColor: string;
   bold: boolean;
   valueBlink: boolean;
+  iconName: string;
   backgroundBlink: boolean;
   link: string;
   position: {
     x: number;
     y: number;
   };
-  mappingId: string;
+  mappingIds: string[];
   unit: string | undefined;
   decimals: number;
 };

@@ -2,11 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { PanelProps, getFieldDisplayValues, ReducerID } from '@grafana/data';
 import { SimpleOptions } from './types/SimpleOptions';
 import { css, cx } from 'emotion';
-import _ from 'lodash';
+import { uniqueId, cloneDeep } from 'lodash';
 // import { stylesFactory, useTheme } from '@grafana/ui';
 import { stylesFactory, useTheme } from '@grafana/ui';
 import { Sensor } from './Sensor';
+import { Mapping } from './types/Mapping';
 import SensorType from './types/Sensor';
+import { IconName, library } from '@fortawesome/fontawesome-svg-core';
+import { fas } from '@fortawesome/free-solid-svg-icons';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
@@ -22,6 +25,7 @@ export const ImageItPanel: React.FC<Props> = ({
   const { forceImageRefresh, lockSensors, mappings, sensors, sensorsTextSize } = options;
   const theme = useTheme();
   const styles = getStyles();
+  library.add(fas);
 
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageDimensions, setImageDimensions] = useState({ height: 0, width: 0 });
@@ -30,7 +34,7 @@ export const ImageItPanel: React.FC<Props> = ({
 
   useEffect(() => {
     if (forceImageRefresh) {
-      setImageUrl(`${options.imageUrl}?${_.uniqueId()}`);
+      setImageUrl(`${options.imageUrl}?${uniqueId()}`);
     } else {
       setImageUrl(options.imageUrl);
     }
@@ -51,7 +55,7 @@ export const ImageItPanel: React.FC<Props> = ({
   };
 
   const onSensorPositionChange = (position: SensorType['position'], index: number) => {
-    const newOptions = _.cloneDeep(options);
+    const newOptions = cloneDeep(options);
     newOptions.sensors[index].position = position;
 
     onOptionsChange(newOptions);
@@ -73,7 +77,7 @@ export const ImageItPanel: React.FC<Props> = ({
           sensors.map((sensor: SensorType, index: number) => {
             // Get serie for sensor based on refId or alias fields
             // let value: Number | undefined = undefined;
-            const serie = data.series.find(serie =>
+            const serie = data.series.find((serie) =>
               sensor.query.id ? sensor.query.id === serie.refId : sensor.query.alias === serie.name
             );
 
@@ -93,20 +97,24 @@ export const ImageItPanel: React.FC<Props> = ({
               value = fieldDisplay.display.numeric;
             }
 
-            // Get mapping by id || undefined
-            const mapping = sensor.mappingId ? mappings.find(mapping => sensor.mappingId === mapping.id) : undefined;
+            // Get mappings by ids
+            const sensorMappings: Mapping[] = sensor.mappingIds
+              .map((mappingId) => mappings.find((mapping: Mapping) => mappingId === mapping.id))
+              .filter((mapping) => typeof mapping !== 'undefined') as Mapping[];
 
             return (
               <Sensor
                 draggable={lockSensors}
                 sensor={sensor}
-                mapping={mapping}
+                iconName={sensor.iconName as IconName}
+                mappings={sensorMappings}
                 index={index}
                 link={replaceVariables(sensor.link)}
                 name={replaceVariables(sensor.name)}
                 imageDimensions={imageDimensions}
                 onPositionChange={onSensorPositionChange}
                 value={value}
+                key={index}
               />
             );
           })}
