@@ -69,9 +69,13 @@ export const Sensor: React.FC<Props> = (props: Props) => {
 
   const valueFormatter = getValueFormat(unit);
 
-  const formattedValue = valueFormatter(value, sensor.decimals);
-
-  const formattedValueString = value !== undefined ? formattedValueToString(formattedValue) : 'No data';
+  let formattedValueString;
+  if (value !== undefined) {
+    const formattedValue = valueFormatter(value, sensor.decimals);
+    formattedValueString = formattedValueToString(formattedValue);
+  } else {
+    formattedValueString = 'No data';
+  }
 
   return (
     <>

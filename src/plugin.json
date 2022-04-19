@@ -1,6 +1,6 @@
 {
-  "id": "pierosavi-imageit-panel",
-  "name": "ImageIt",
+  "id": "hm-imageit-panel",
+  "name": "ImageIt_HM",
   "type": "panel",
   "info": {
     "description": "Add Measurements to a Picture in Grafana",
